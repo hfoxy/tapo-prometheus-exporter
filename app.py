@@ -51,12 +51,12 @@ def main():
 def metrics():
     for pn, p in plugs.items():
         energy_usage_result = json.loads(tapoPlugApi.getEnergyUsageInfo(p))['result']
-        plug_usage_result = json.loads(tapoPlugApi.getPlugUsage(p))['result']
+        #plug_usage_result = json.loads(tapoPlugApi.getPlugUsage(p))['result']
         device_running_result = json.loads(tapoPlugApi.getDeviceRunningInfo(p))['result']
 
-        print(device_running_result)
-        print(energy_usage_result)
-        print(plug_usage_result)
+        #print(device_running_result)
+        #print(energy_usage_result)
+        #print(plug_usage_result)
 
         current_power = energy_usage_result['current_power']
         plug_current_power_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(current_power)
