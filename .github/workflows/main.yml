@@ -23,6 +23,6 @@ jobs:
           echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: Build Docker image
-        run: docker build . -t "$registry/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "$registry/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}"
+        run: docker build . -t "ghcr.io/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "ghcr.io/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}"
       - name: Push Docker image
-        run: docker push -a "$registry/hfoxy/tapo-prometheus-exporter"
+        run: docker push -a "ghcr.io/hfoxy/tapo-prometheus-exporter"
