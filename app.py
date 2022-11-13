@@ -18,6 +18,7 @@ plug_defines = os.getenv('TAPO_PLUGS')
 if plug_defines is None or plug_defines == '':
     raise Exception('plug(s) not defined')
 
+plugs = {}
 for plug_data in plug_defines.split(','):
     plug_data_split = plug_data.split(':')
     plug_name = plug_data_split[0]
@@ -30,9 +31,7 @@ for plug_data in plug_defines.split(','):
         'tapoPassword': tapo_password
     }
 
-    plug_current_power_gauge.labels(plug_name=plug_name, plug_ip=plug_ip).set_function(lambda: json.loads(
-        tapoPlugApi.getEnergyUsageInfo(plug)
-    )['result']['current_power'])
+    plugs[plug_name] = plug
 
 
 @app.route('/')
@@ -43,6 +42,10 @@ def main():
 
 @app.route('/metrics')
 def metrics():
+    for pn, p in plugs:
+        current_power = json.loads(tapoPlugApi.getEnergyUsageInfo(p))['result']['current_power']
+        plug_current_power_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(current_power)
+
     return generate_latest()
 
 
