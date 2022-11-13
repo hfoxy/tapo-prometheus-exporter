@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-plug_current_power_gauge = Gauge('plug_current_power', 'Plug Current Power', labelnames=['plug'])
+plug_current_power_gauge = Gauge('plug_current_power', 'Plug Current Power', labelnames=['plug_name', 'plug_ip'])
 
 tapo_email = os.getenv('TAPO_EMAIL')
 tapo_password = os.getenv('TAPO_PASSWORD')
@@ -17,8 +17,6 @@ if tapo_email is None or tapo_password is None:
 plug_defines = os.getenv('TAPO_PLUGS')
 if plug_defines is None or plug_defines == '':
     raise Exception('plug(s) not defined')
-
-print(f"Plug Defines: {plug_defines}")
 
 for plug_data in plug_defines.split(','):
     plug_data_split = plug_data.split(':')
@@ -32,11 +30,9 @@ for plug_data in plug_defines.split(','):
         'tapoPassword': tapo_password
     }
 
-    print(f"Plug: {plug}")
-    plug_current_power_gauge.labels(plug=plug_name).set_function(lambda: json.loads(
+    plug_current_power_gauge.labels(plug_name=plug_name, plug_ip=plug_ip).set_function(lambda: json.loads(
         tapoPlugApi.getEnergyUsageInfo(plug)
     )['result']['current_power'])
-    print(generate_latest())
 
 
 @app.route('/')
