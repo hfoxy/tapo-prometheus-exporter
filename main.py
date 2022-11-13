@@ -48,3 +48,7 @@ def main():
 @app.route('/metrics')
 def metrics():
     return generate_latest()
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
