@@ -7,6 +7,10 @@ import os
 app = Flask(__name__)
 
 plug_current_power_gauge = Gauge('plug_current_power', 'Plug Current Power', labelnames=['plug_name', 'plug_ip'])
+plug_signal_level_gauge = Gauge('plug_signal_level', 'Plug Signal Level', labelnames=['plug_name', 'plug_ip'])
+plug_rssi_gauge = Gauge('plug_rssi', 'Plug RSSI', labelnames=['plug_name', 'plug_ip'])
+plug_status_gauge = Gauge('plug_status', 'Plug Status', labelnames=['plug_name', 'plug_ip'])
+plug_overheated_gauge = Gauge('plug_overheated', 'Plug Overheated', labelnames=['plug_name', 'plug_ip'])
 
 tapo_email = os.getenv('TAPO_EMAIL')
 tapo_password = os.getenv('TAPO_PASSWORD')
@@ -43,8 +47,28 @@ def main():
 @app.route('/metrics')
 def metrics():
     for pn, p in plugs.items():
-        current_power = json.loads(tapoPlugApi.getEnergyUsageInfo(p))['result']['current_power']
+        energy_usage_result = json.loads(tapoPlugApi.getEnergyUsageInfo(p))['result']
+        #plug_usage_result = json.loads(tapoPlugApi.getPlugUsage(p))['result']
+        device_running_result = json.loads(tapoPlugApi.getDeviceRunningInfo(p))['result']
+
+        #print(device_running_result)
+        #print(energy_usage_result)
+        #print(plug_usage_result)
+
+        current_power = energy_usage_result['current_power']
         plug_current_power_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(current_power)
+
+        signal_level = device_running_result['signal_level']
+        plug_signal_level_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(signal_level)
+
+        rssi = device_running_result['rssi']
+        plug_rssi_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(rssi)
+
+        status = 1 if device_running_result['device_on'] else 0
+        plug_status_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(status)
+
+        overheated = 1 if device_running_result['overheated'] else 0
+        plug_overheated_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(overheated)
 
     return generate_latest()
 
