@@ -42,7 +42,7 @@ def main():
 
 @app.route('/metrics')
 def metrics():
-    for pn, p in plugs:
+    for pn, p in plugs.items():
         current_power = json.loads(tapoPlugApi.getEnergyUsageInfo(p))['result']['current_power']
         plug_current_power_gauge.labels(plug_name=pn, plug_ip=p['tapoIp']).set(current_power)
 
