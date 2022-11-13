@@ -4,9 +4,9 @@
 #@license   MIT License (http://www.opensource.org/licenses/mit-license.php)
 #@docs      https://gitlab.com/Naqwada/TapoPlug-Rest-API
 
-from crypto.PublicKey import RSA
-from crypto.Cipher import AES
-from crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto.Cipher import PKCS1_v1_5
 from pkcs7 import PKCS7Encoder
 import hashlib
 import base64
