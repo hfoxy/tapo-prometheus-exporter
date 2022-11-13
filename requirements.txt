@@ -1,0 +1,7 @@
+requests
+pycryptodome
+pkcs7
+flask
+prometheus_client
+
+#tapo-plug==0.7
