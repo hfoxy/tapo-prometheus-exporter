@@ -341,6 +341,21 @@
           "legendFormat": "{{plug_name}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (plug_current_power)",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "Power Usage",
@@ -658,6 +673,6 @@
   "timezone": "",
   "title": "Power",
   "uid": "W4FuOlD4k",
-  "version": 11,
+  "version": 12,
   "weekStart": ""
 }
