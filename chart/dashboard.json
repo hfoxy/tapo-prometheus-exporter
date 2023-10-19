@@ -338,7 +338,7 @@
           "expr": "sum by (plug_name) (plug_current_power)",
           "format": "time_series",
           "instant": false,
-          "legendFormat": "\\{\\{plug_name}}",
+          "legendFormat": "{{plug_name}}",
           "range": true,
           "refId": "A"
         },
@@ -453,7 +453,7 @@
           },
           "editorMode": "code",
           "expr": "avg by (plug_name) (last_over_time(plug_status[$__interval]))",
-          "legendFormat": "\\{\\{plug_name}}",
+          "legendFormat": "{{plug_name}}",
           "range": true,
           "refId": "A"
         }
@@ -549,7 +549,7 @@
           },
           "editorMode": "code",
           "expr": "avg by (plug_name) (last_over_time(plug_overheated[$__interval]))",
-          "legendFormat": "\\{\\{plug_name}}",
+          "legendFormat": "{{plug_name}}",
           "range": true,
           "refId": "A"
         }
