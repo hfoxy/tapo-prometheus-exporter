@@ -1,0 +1,15 @@
+{{- if .Values.grafana.dashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "tapo-prometheus-exporter.fullname" . }}
+  labels:
+    grafana_dashboard: "1"
+    {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
+data:
+  {{- $files := .Files }}
+  {{- range tuple "dashboard.json" }}
+  {{ . }}: |-
+    {{ $files.Get . }}
+  {{- end }}
+{{- end }}

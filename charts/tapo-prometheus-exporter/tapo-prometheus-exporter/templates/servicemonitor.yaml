@@ -1,0 +1,16 @@
+{{- if .Values.prometheus.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cloudflared-monitor
+  labels:
+    app: cloudflared
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      {{- include "tapo-prometheus-exporter.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      path: /metrics
+{{- end }}
