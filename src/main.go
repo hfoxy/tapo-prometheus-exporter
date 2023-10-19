@@ -89,6 +89,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
+				updated := 0
 				for name, plug := range plugs {
 					var plugErr error
 
@@ -105,6 +106,15 @@ func main() {
 					eu, eue := plug.GetEnergyUsage()
 					if eue != nil {
 						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get energy usage for plug %s: %v", name, eue))
+					}
+
+					if drie == nil && dri.Result.IP == "" {
+						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device ip for plug %s: %v", name, dri))
+					}
+
+					if plugErr != nil {
+						log.Printf("unable to get data for plug %s: %v", name, plugErr)
+						continue
 					}
 
 					plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.CurrentPower))
@@ -127,15 +137,16 @@ func main() {
 					}
 
 					plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(overheated)
+					updated++
 				}
+
+				log.Printf("updated %d plugs", updated)
 			case <-ctx.Done():
 				ticker.Stop()
 				os.Exit(0)
 			}
 		}
 	}()
-
-	plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": "plug1", "plug_ip": ""}).Set(1)
 
 	http.Handle("/metrics", promhttp.Handler())
 	err = http.ListenAndServe(":8080", logRequestHandler(http.DefaultServeMux))
@@ -146,19 +157,11 @@ func main() {
 
 func logRequestHandler(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-
-		// call the original http.Handler we're wrapping
 		h.ServeHTTP(w, r)
-
-		// gather information about request and log it
 		uri := r.URL.String()
 		method := r.Method
-
-		// ... more information
 		log.Printf("%s %s", method, uri)
 	}
 
-	// http.HandlerFunc wraps a function so that it
-	// implements http.Handler interface
 	return http.HandlerFunc(fn)
 }
