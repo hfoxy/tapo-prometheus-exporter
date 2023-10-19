@@ -54,9 +54,9 @@ affinity: {}
 
 prometheus:
   serviceMonitor:
-    enabled: true
+    enabled: false
 
 grafana:
   dashboard:
-    enabled: true
+    enabled: false
     namespace: kube-prometheus-stack
