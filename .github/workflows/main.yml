@@ -47,6 +47,7 @@ jobs:
         working-directory: src
         env:
           CGO_ENABLED: 0
+          GOEXPERIMENT: 'loopvar'
         run: go build -ldflags="-s -w -X 'main.version=${{ steps.vars.outputs.version }}' -X 'main.commitHash=${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}' -X 'main.buildTimestamp=${{ steps.vars.outputs.build_timestamp }}'" -o tapo-prometheus-exporter .
 
       - name: Log in to the Container registry
