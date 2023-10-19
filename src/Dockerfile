@@ -6,6 +6,7 @@ FROM scratch
 
 ENV BIND_PORT=8080
 
+RUN apk add bash
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 WORKDIR /app
