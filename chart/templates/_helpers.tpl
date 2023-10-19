@@ -60,3 +60,11 @@ Config secret name
 {{- include "tapo-prometheus-exporter.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Service Monitor labels
+*/}}
+{{- define "tapo-prometheus-exporter.serviceMonitorLabels" -}}
+{{ include "tapo-prometheus-exporter.labels" . }}
+{{ toYaml .Values.prometheus.serviceMonitor.labels | nindent 4 }}
+{{- end }}

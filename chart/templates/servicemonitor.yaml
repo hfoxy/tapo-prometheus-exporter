@@ -4,7 +4,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ include "tapo-prometheus-exporter.fullname" . -}}-monitor
   labels:
-    {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
+    {{- include "tapo-prometheus-exporter.serviceMonitorLabels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
