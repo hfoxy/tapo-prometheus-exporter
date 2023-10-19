@@ -6,6 +6,8 @@ metadata:
     {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
 spec:
   replicas: 1
+
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       {{- include "tapo-prometheus-exporter.selectorLabels" . | nindent 6 }}

@@ -71,3 +71,6 @@ grafana:
   dashboard:
     enabled: false
     namespace: kube-prometheus-stack
+    maxKW: 2
+    kwhPrice: 0.412
+    currency: currencyGBP

@@ -38,10 +38,10 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 2000000,
+          "max": "${maxPower}",
           "min": 0,
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
@@ -49,11 +49,11 @@
               },
               {
                 "color": "#EAB839",
-                "value": 1000000
+                "value": 50
               },
               {
                 "color": "red",
-                "value": 1500000
+                "value": 75
               }
             ]
           },
@@ -63,7 +63,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -108,7 +108,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 2000000,
+          "max": "${maxPower}",
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -119,11 +119,11 @@
               },
               {
                 "color": "#EAB839",
-                "value": 1000000
+                "value": 50
               },
               {
                 "color": "red",
-                "value": 1500000
+                "value": 75
               }
             ]
           },
@@ -133,8 +133,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "id": 6,
@@ -178,7 +178,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 2000000,
+          "max": "${maxPower}",
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -189,11 +189,11 @@
               },
               {
                 "color": "#EAB839",
-                "value": 1000000
+                "value": 50
               },
               {
                 "color": "red",
-                "value": 1500000
+                "value": 75
               }
             ]
           },
@@ -203,8 +203,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "id": 10,
@@ -235,6 +235,76 @@
         }
       ],
       "title": "Minimum Power Usage",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": "${maxPower}",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 75
+              }
+            ]
+          },
+          "unit": "${currency}"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 15,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(plug_current_power) / 1e+6 * ${kwhPrice}",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Current Power Cost",
       "type": "gauge"
     },
     {
@@ -282,7 +352,7 @@
             }
           },
           "mappings": [],
-          "max": 2000000,
+          "max": "${maxPower}",
           "min": 0,
           "thresholds": {
             "mode": "percentage",
@@ -306,8 +376,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
-        "w": 24,
+        "h": 14,
+        "w": 12,
         "x": 0,
         "y": 8
       },
@@ -358,6 +428,129 @@
         }
       ],
       "title": "Power Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "max": 0.824,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "${currency}"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 14,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum by (plug_name) (plug_current_power) / 1e+6) * ${kwhPrice}",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "{{plug_name}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum (plug_current_power) / 1e+6) * ${kwhPrice}",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Power Cost",
       "type": "timeseries"
     },
     {
@@ -428,7 +621,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "id": 8,
       "options": {
@@ -508,7 +701,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 21
+        "y": 22
       },
       "id": 11,
       "options": {
@@ -606,7 +799,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 22
       },
       "id": 13,
       "interval": "60s",
@@ -658,6 +851,6 @@
   "timezone": "",
   "title": "Power",
   "uid": "W4FuOlD4k",
-  "version": 13,
+  "version": 14,
   "weekStart": ""
 }
