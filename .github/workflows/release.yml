@@ -100,6 +100,7 @@ jobs:
       - name: Checkout chart repo
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.CHARTS_GITHUB_TOKEN }}
           repository: hfoxy/helm-charts
           path: helm-charts
 
@@ -126,4 +127,6 @@ jobs:
 
       - name: Create pull request in chart repo
         working-directory: helm-charts
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHARTS_GITHUB_TOKEN }}
         run: gh pr create --title "Add tapo-prometheus-exporter-${{ steps.vars.outputs.version }}" --body "Add tapo-prometheus-exporter-${{ steps.vars.outputs.version }}" --base main --head "tapo-prometheus-exporter-${{ steps.vars.outputs.version }}"
