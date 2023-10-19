@@ -56,7 +56,7 @@ spec:
       volumes:
         - name: config
           secret:
-            secretName: {{ include "tapo-prometheus-exporter.secretName" }}
+            secretName: {{ include "tapo-prometheus-exporter.secretName" . }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

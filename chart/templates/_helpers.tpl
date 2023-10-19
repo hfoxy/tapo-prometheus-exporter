@@ -54,9 +54,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Config secret name
 */}}
 {{- define "tapo-prometheus-exporter.secretName" -}}
-{{- if .Values.config.existingSecret }}
-{{ .Values.config.existingSecret }}
-{{- else }}
-{{ include "tapo-prometheus-exporter.fullname" . }}
+{{- if .Values.config.existingSecret -}}
+{{- .Values.config.existingSecret }}
+{{- else -}}
+{{- include "tapo-prometheus-exporter.fullname" . }}
 {{- end }}
 {{- end }}
