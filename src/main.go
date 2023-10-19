@@ -113,6 +113,13 @@ func main() {
 		}
 	}()
 
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err = fmt.Fprintf(w, "OK")
+		if err != nil {
+			log.Printf("unable to write response: %v", err)
+			return
+		}
+	}))
 	http.Handle("/metrics", promhttp.Handler())
 	err = http.ListenAndServe(":8080", logRequestHandler(http.DefaultServeMux))
 	if err != nil {
