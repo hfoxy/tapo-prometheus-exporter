@@ -31,6 +31,8 @@ jobs:
             echo "Version starts with v"
           else
             echo "Version does not start with v"
+            echo "ref: '${{ github.ref }}'"
+            echo "REF: '$GITHUB_REF'"
             echo "Branch: '${{ steps.vars.outputs.branch }}'"
             echo "Version: '${{ steps.vars.outputs.version }}'"
             echo "SHA: '${{ steps.vars.outputs.sha_short }}'"
