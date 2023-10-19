@@ -117,7 +117,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-
+				updatePlugs()
 			case <-ctx.Done():
 				ticker.Stop()
 				os.Exit(0)
