@@ -78,4 +78,4 @@ jobs:
 
       - name: Helm package
         working-directory: chart
-        run: helm package tapo-prometheus-exporter
+        run: helm package .
