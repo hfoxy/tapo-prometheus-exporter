@@ -2,10 +2,9 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: cloudflared-monitor
+  name: {{- include "tapo-prometheus-exporter.fullname" }}-monitor
   labels:
-    app: cloudflared
-    release: kube-prometheus-stack
+    {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:

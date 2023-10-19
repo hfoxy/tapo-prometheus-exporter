@@ -59,3 +59,4 @@ prometheus:
 grafana:
   dashboard:
     enabled: false
+    namespace: kube-prometheus-stack

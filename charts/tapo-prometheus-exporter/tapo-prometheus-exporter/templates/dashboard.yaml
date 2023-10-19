@@ -3,6 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "tapo-prometheus-exporter.fullname" . }}
+  namespace: {{ .Values.grafana.dashboard.namespace | default .Release.Namespace }}
   labels:
     grafana_dashboard: "1"
     {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
