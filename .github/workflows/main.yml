@@ -35,7 +35,7 @@ jobs:
         working-directory: src
         env:
           CGO_ENABLED: 0
-        run: go build -ldflags="-s -w -X 'github.com/hfoxy/tapo-prometheus-exporter/version.Version=${{ steps.vars.outputs.version }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.CommitHash=${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.BuildTimestamp=${{ steps.vars.outputs.build_timestamp }}'" -o backend
+        run: go build -ldflags="-s -w -X 'github.com/hfoxy/tapo-prometheus-exporter/version.Version=${{ steps.vars.outputs.version }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.CommitHash=${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.BuildTimestamp=${{ steps.vars.outputs.build_timestamp }}'" -o tapo-prometheus-exporter
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
