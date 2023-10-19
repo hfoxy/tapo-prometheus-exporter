@@ -1,10 +1,8 @@
 name: Build & Push
 
 on:
-  push:
-    branches:
-      - 'main'
-      - 'develop'
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -25,7 +23,7 @@ jobs:
           echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "build_timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
-          echo "version=dev" >> $GITHUB_OUTPUT
+          echo "version=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         working-directory: src
@@ -46,5 +44,5 @@ jobs:
       - name: Docker build & push
         working-directory: src
         run: |
-          docker image build -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}" .
+          docker image build -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.version }}" -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}" .
           docker push -a "hfoxy4/tapo-prometheus-exporter"
