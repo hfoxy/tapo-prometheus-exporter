@@ -9,5 +9,5 @@ metadata:
     {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
 data:
   config.yaml:
-{{ (((.Files.Get "dashboard.json" | replace "${maxPower}" ((mul .Values.grafana.dashboard.maxKW 1000000) | toString)) | replace "${kwhPrice}" (.Values.grafana.dashboard.kwhPrice | toString)) | replace "${currency}" (.Values.grafana.dashboard.currency | toString)) | indent 4 }}
+{{ .Files.Get "dashboard.json" | replace "\"${maxPower}\"" ((mul .Values.grafana.dashboard.maxKW 1000000) | toString) | replace "\"${maxKwhPrice}\"" ((mulf .Values.grafana.dashboard.kwhPrice .Values.grafana.dashboard.maxKW) | toString) | replace "${kwhPrice}" (.Values.grafana.dashboard.kwhPrice | toString) | replace "${currency}" (.Values.grafana.dashboard.currency | toString) | indent 4 }}
 {{- end }}

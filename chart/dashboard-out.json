@@ -38,7 +38,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": "${maxPower}",
+          "max": 2000000,
           "min": 0,
           "thresholds": {
             "mode": "percentage",
@@ -108,7 +108,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": "${maxPower}",
+          "max": 2000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -178,7 +178,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": "${maxPower}",
+          "max": 2000000,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -248,7 +248,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": "${maxKwhPrice}",
+          "max": 0.624,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -267,7 +267,7 @@
               }
             ]
           },
-          "unit": "${currency}"
+          "unit": "currencyGBP"
         },
         "overrides": []
       },
@@ -298,7 +298,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(plug_current_power) / 1e+6 * ${kwhPrice}",
+          "expr": "sum(plug_current_power) / 1e+6 * 0.312",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -352,7 +352,7 @@
             }
           },
           "mappings": [],
-          "max": "${maxPower}",
+          "max": 2000000,
           "min": 0,
           "thresholds": {
             "mode": "percentage",
@@ -475,7 +475,7 @@
             }
           },
           "mappings": [],
-          "max": "${maxKwhPrice}",
+          "max": 0.624,
           "min": 0,
           "thresholds": {
             "mode": "percentage",
@@ -494,7 +494,7 @@
               }
             ]
           },
-          "unit": "${currency}"
+          "unit": "currencyGBP"
         },
         "overrides": []
       },
@@ -527,7 +527,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum by (plug_name) (plug_current_power) / 1e+6) * ${kwhPrice}",
+          "expr": "(sum by (plug_name) (plug_current_power) / 1e+6) * 0.312",
           "format": "time_series",
           "instant": false,
           "legendFormat": "{{plug_name}}",
@@ -541,7 +541,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum (plug_current_power) / 1e+6) * ${kwhPrice}",
+          "expr": "(sum (plug_current_power) / 1e+6) * 0.312",
           "format": "time_series",
           "hide": false,
           "instant": false,
