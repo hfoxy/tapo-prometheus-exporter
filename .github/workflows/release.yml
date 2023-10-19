@@ -83,7 +83,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: src/tapo-prometheus-exporter
-            chart/tapo-prometheus-exporter-${{ steps.vars.outputs.version }}.tgz
           asset_name: tapo-prometheus-exporter
           tag: ${{ github.ref }}
           overwrite: true
