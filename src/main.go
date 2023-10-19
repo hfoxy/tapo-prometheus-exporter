@@ -28,28 +28,33 @@ var (
 	buildTimestamp = "n/a"
 )
 
+type Plug struct {
+	Name     string `yaml:"name"`
+	IP       string `yaml:"ip"`
+	Username string `yaml:"username,omitempty"`
+	Password string `yaml:"password,omitempty"`
+	Room     string `yaml:"room,omitempty"`
+
+	tapo *tapo.Tapo
+}
+
 // PlugConfig is the configuration for the exporter
 type PlugConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-	Plugs    []struct {
-		Name     string `yaml:"name"`
-		IP       string `yaml:"ip"`
-		Username string `yaml:"username,omitempty"`
-		Password string `yaml:"password,omitempty"`
-	} `yaml:"plugs"`
+	Plugs    []Plug `yaml:"plugs"`
 }
 
-var plugCurrentPowerGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_current_power", Help: "Plug Current Power"}, []string{"plug_name", "plug_ip"})
-var plugSignalLevelGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_signal_level", Help: "Plug Signal Level"}, []string{"plug_name", "plug_ip"})
-var plugRssiGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_rssi", Help: "Plug RSSI"}, []string{"plug_name", "plug_ip"})
-var plugStatusGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_status", Help: "Plug Status"}, []string{"plug_name", "plug_ip"})
-var plugOverheatedGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_overheated", Help: "Plug Overheated"}, []string{"plug_name", "plug_ip"})
-var plugTodayRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_today_runtime", Help: "Plug Today Runtime"}, []string{"plug_name", "plug_ip"})
-var plugMonthRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_month_runtime", Help: "Plug Month Runtime"}, []string{"plug_name", "plug_ip"})
-var plugOnTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_on_time", Help: "Plug On Time"}, []string{"plug_name", "plug_ip"})
+var plugCurrentPowerGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_current_power", Help: "Plug Current Power"}, []string{"plug_name", "room", "plug_ip"})
+var plugSignalLevelGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_signal_level", Help: "Plug Signal Level"}, []string{"plug_name", "room", "plug_ip"})
+var plugRssiGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_rssi", Help: "Plug RSSI"}, []string{"plug_name", "room", "plug_ip"})
+var plugStatusGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_status", Help: "Plug Status"}, []string{"plug_name", "room", "plug_ip"})
+var plugOverheatedGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_overheated", Help: "Plug Overheated"}, []string{"plug_name", "room", "plug_ip"})
+var plugTodayRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_today_runtime", Help: "Plug Today Runtime"}, []string{"plug_name", "room", "plug_ip"})
+var plugMonthRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_month_runtime", Help: "Plug Month Runtime"}, []string{"plug_name", "room", "plug_ip"})
+var plugOnTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_on_time", Help: "Plug On Time"}, []string{"plug_name", "room", "plug_ip"})
 
-var plugs map[string]*tapo.Tapo
+var plugs map[string]*Plug
 
 func main() {
 	log.Printf("Starting tapo-prometheus-exporter %s (%s @ %s)", version, commitHash, buildTimestamp)
@@ -73,7 +78,7 @@ func main() {
 		panic(fmt.Errorf("unable to unmarshal config.yaml: %v", err))
 	}
 
-	plugs = make(map[string]*tapo.Tapo)
+	plugs = make(map[string]*Plug)
 
 	err = nil
 	for _, plug := range config.Plugs {
@@ -85,6 +90,10 @@ func main() {
 
 		if plug.Password == "" {
 			plug.Password = config.Password
+		}
+
+		if plug.Room == "" {
+			plug.Room = "default"
 		}
 
 		if plug.IP == "" {
@@ -102,7 +111,8 @@ func main() {
 			if plugErr != nil {
 				err = errors.Join(err, fmt.Errorf("unable to create Tapo plug %s: %v", plug.Name, plugErr))
 			} else {
-				plugs[plug.Name] = tapoPlug
+				plug.tapo = tapoPlug
+				plugs[plug.Name] = &plug
 				log.Printf("added plug %s (%s)", plug.Name, plug.IP)
 			}
 		}
@@ -145,8 +155,10 @@ func updatePlugs() {
 	updated := 0
 	for name, plug := range plugs {
 		var plugErr error
+		var plugIp = plug.IP
+		var room = plug.Room
 
-		dri, drie := plug.GetDeviceRunningInfo()
+		dri, drie := plug.tapo.GetDeviceRunningInfo()
 		if drie != nil {
 			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device running info for plug %s: %v", name, drie))
 		}
@@ -156,7 +168,7 @@ func updatePlugs() {
 			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device info for plug %s: %v", name, die))
 		}*/
 
-		eu, eue := plug.GetEnergyUsage()
+		eu, eue := plug.tapo.GetEnergyUsage()
 		if eue != nil {
 			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get energy usage for plug %s: %v", name, eue))
 		}
@@ -170,12 +182,12 @@ func updatePlugs() {
 			continue
 		}
 
-		plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.CurrentPower))
-		plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.SignalLevel))
-		plugRssiGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.Rssi))
-		plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.TodayRuntime))
-		plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.MonthRuntime))
-		plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.OnTime))
+		plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.CurrentPower))
+		plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.SignalLevel))
+		plugRssiGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.Rssi))
+		plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.TodayRuntime))
+		plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.MonthRuntime))
+		plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.OnTime))
 
 		status := float64(0)
 		if dri.Result.DeviceOn {
