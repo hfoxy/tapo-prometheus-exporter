@@ -15,6 +15,20 @@ import (
 	"time"
 )
 
+var (
+	// these variables are set at build time
+
+	// version is the version of the exporter
+	version = "dev"
+
+	// commitHash is the git commit hash of the exporter
+	commitHash = "n/a"
+
+	// buildTimestamp is the build timestamp of the exporter
+	buildTimestamp = "n/a"
+)
+
+// PlugConfig is the configuration for the exporter
 type PlugConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
@@ -35,8 +49,10 @@ var plugTodayRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plu
 var plugMonthRuntimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_month_runtime", Help: "Plug Month Runtime"}, []string{"plug_name", "plug_ip"})
 var plugOnTimeGauge = promauto.NewGaugeVec(prometheus.GaugeOpts{Name: "plug_on_time", Help: "Plug On Time"}, []string{"plug_name", "plug_ip"})
 
+var plugs map[string]*tapo.Tapo
+
 func main() {
-	log.Printf("Starting tapo-prometheus-exporter v%s (%s @ %s)", Version, CommitHash, BuildTimestamp)
+	log.Printf("Starting tapo-prometheus-exporter %s (%s @ %s)", version, commitHash, buildTimestamp)
 
 	ctx, ctxClose := context.WithCancel(context.Background())
 	defer ctxClose()
@@ -52,7 +68,7 @@ func main() {
 		panic(fmt.Errorf("unable to unmarshal config.yaml: %v", err))
 	}
 
-	plugs := make(map[string]*tapo.Tapo)
+	plugs = make(map[string]*tapo.Tapo)
 
 	err = nil
 	for _, plug := range config.Plugs {
@@ -89,58 +105,7 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				updated := 0
-				for name, plug := range plugs {
-					var plugErr error
 
-					dri, drie := plug.GetDeviceRunningInfo()
-					if drie != nil {
-						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device running info for plug %s: %v", name, drie))
-					}
-
-					/*di, die := plug.GetDeviceInfo()
-					if die != nil {
-						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device info for plug %s: %v", name, die))
-					}*/
-
-					eu, eue := plug.GetEnergyUsage()
-					if eue != nil {
-						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get energy usage for plug %s: %v", name, eue))
-					}
-
-					if drie == nil && dri.Result.IP == "" {
-						plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device ip for plug %s: %v", name, dri))
-					}
-
-					if plugErr != nil {
-						log.Printf("unable to get data for plug %s: %v", name, plugErr)
-						continue
-					}
-
-					plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.CurrentPower))
-					plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.SignalLevel))
-					plugRssiGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.Rssi))
-					plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.TodayRuntime))
-					plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.MonthRuntime))
-					plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.OnTime))
-
-					status := float64(0)
-					if dri.Result.DeviceOn {
-						status = 1
-					}
-
-					plugStatusGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(status)
-
-					overheated := float64(0)
-					if dri.Result.Overheated {
-						overheated = 1
-					}
-
-					plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(overheated)
-					updated++
-				}
-
-				log.Printf("updated %d plugs", updated)
 			case <-ctx.Done():
 				ticker.Stop()
 				os.Exit(0)
@@ -153,6 +118,61 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func updatePlugs() {
+	updated := 0
+	for name, plug := range plugs {
+		var plugErr error
+
+		dri, drie := plug.GetDeviceRunningInfo()
+		if drie != nil {
+			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device running info for plug %s: %v", name, drie))
+		}
+
+		/*di, die := plug.GetDeviceInfo()
+		if die != nil {
+			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device info for plug %s: %v", name, die))
+		}*/
+
+		eu, eue := plug.GetEnergyUsage()
+		if eue != nil {
+			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get energy usage for plug %s: %v", name, eue))
+		}
+
+		if drie == nil && dri.Result.IP == "" {
+			plugErr = errors.Join(plugErr, fmt.Errorf("unable to get device ip for plug %s: %v", name, dri))
+		}
+
+		if plugErr != nil {
+			log.Printf("unable to get data for plug %s: %v", name, plugErr)
+			continue
+		}
+
+		plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.CurrentPower))
+		plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.SignalLevel))
+		plugRssiGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.Rssi))
+		plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.TodayRuntime))
+		plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(eu.Result.MonthRuntime))
+		plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(float64(dri.Result.OnTime))
+
+		status := float64(0)
+		if dri.Result.DeviceOn {
+			status = 1
+		}
+
+		plugStatusGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(status)
+
+		overheated := float64(0)
+		if dri.Result.Overheated {
+			overheated = 1
+		}
+
+		plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(overheated)
+		updated++
+	}
+
+	log.Printf("updated %d plugs", updated)
 }
 
 func logRequestHandler(h http.Handler) http.Handler {
