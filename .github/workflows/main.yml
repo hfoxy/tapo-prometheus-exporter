@@ -1,32 +1,50 @@
 name: Build & Push
 
-on: [push, pull_request]
-
-env:
-  REGISTRY: ghcr.io
+on:
+  push:
+    branches:
+      - 'main'
+      - 'develop'
 
 jobs:
-  ci:
-    name: Build & Publish
+  build:
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      - uses: actions/setup-go@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Declare variables
+          go-version: '^1.21.1'
+          check-latest: true
+          cache-dependency-path: src/go.sum
+
+      - name: Declare some variables
         id: vars
         shell: bash
         run: |
-          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: Build Docker image
-        run: docker build . -t "ghcr.io/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "ghcr.io/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}"
-      - name: Add latest tag
-        if: github.ref == 'refs/heads/main'
-        run: docker tag "ghcr.io/hfoxy/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}" "ghcr.io/hfoxy/tapo-prometheus-exporter:latest"
-      - name: Push Docker image
-        run: docker push -a "ghcr.io/hfoxy/tapo-prometheus-exporter"
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date '+%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "version=$(cat version.txt)" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        working-directory: src
+        run: go mod download
+
+      - name: Build
+        working-directory: src
+        env:
+          CGO_ENABLED: 0
+        run: go build -ldflags="-s -w -X 'github.com/hfoxy/tapo-prometheus-exporter/version.Version=${{ steps.vars.outputs.version }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.CommitHash=${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}' -X 'github.com/hfoxy/tapo-prometheus-exporter/version.BuildTimestamp=${{ steps.vars.outputs.build_timestamp }}'" -o backend
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker build & push
+        working-directory: src
+        run: |
+          docker image build -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}" -t "hfoxy4/tapo-prometheus-exporter:${{ steps.vars.outputs.branch }}-${{ steps.vars.outputs.sha_short }}" .
+          docker push -a "hfoxy4/tapo-prometheus-exporter"
