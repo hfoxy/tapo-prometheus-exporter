@@ -82,6 +82,7 @@ func main() {
 
 	err = nil
 	for _, plug := range config.Plugs {
+		plug := plug
 		log.Printf("adding plug %s (%s)", plug.Name, plug.IP)
 
 		if plug.Username == "" {
