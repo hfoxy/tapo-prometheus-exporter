@@ -64,6 +64,8 @@ config:
 prometheus:
   serviceMonitor:
     enabled: false
+    labels:
+      release: kube-prometheus-stack
 
 grafana:
   dashboard:
