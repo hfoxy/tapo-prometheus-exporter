@@ -1,13 +1,9 @@
-FROM alpine:3.18.3 AS builder
-
-RUN apk add --no-cache ca-certificates
-
-FROM scratch
+FROM alpine:3.18.3
 
 ENV BIND_PORT=8080
 
+RUN apk add --no-cache ca-certificates
 RUN apk add bash
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 WORKDIR /app
 COPY --chmod=775 tapo-prometheus-exporter ./
