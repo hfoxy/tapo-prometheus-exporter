@@ -41,14 +41,23 @@ spec:
             httpGet:
               path: /
               port: http
+          env:
+            - name: CONFIG_PATH
+              value: /app/config/config.yaml
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - name: config
+          secret:
+            secretName: {{ include "tapo-prometheus-exporter.secretName" }}
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

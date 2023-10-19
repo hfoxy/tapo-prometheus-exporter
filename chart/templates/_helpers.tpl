@@ -49,3 +49,14 @@ Selector labels
 app.kubernetes.io/name: {{ include "tapo-prometheus-exporter.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Config secret name
+*/}}
+{{- define "tapo-prometheus-exporter.secretName" -}}
+{{- if .Values.config.existingSecret }}
+{{ .Values.config.existingSecret }}
+{{- else }}
+{{ include "tapo-prometheus-exporter.fullname" . }}
+{{- end }}
+{{- end }}
