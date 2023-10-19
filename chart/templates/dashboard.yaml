@@ -9,7 +9,7 @@ metadata:
     {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
 data:
   {{- $files := .Files }}
-  {{- range tuple "dashboard.json" }}
+  {{- range tuple "dashboard.json.tpl" }}
   {{ . }}: |-
     {{ $files.Get . }}
   {{- end }}
