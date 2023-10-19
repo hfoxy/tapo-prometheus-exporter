@@ -77,3 +77,33 @@ jobs:
       - name: Helm package
         working-directory: chart
         run: helm package .
+
+      - name: Checkout chart repo
+        uses: actions/checkout@v4
+        with:
+          repository: hfoxy/helm-charts
+
+      - name: Setup git
+        working-directory: helm-charts
+        run: |
+          git config --global user.email "actions@hfox.me"
+          git config --global user.name "GitHub Actions (tapo-prometheus-exporter)"
+
+      - name: Create branch for new version
+        working-directory: helm-charts
+        run: |
+          git checkout -b "tapo-prometheus-exporter-${{ steps.vars.outputs.version }}"
+          git push -u origin "tapo-prometheus-exporter-${{ steps.vars.outputs.version }}"
+
+      - name: Add new chart version
+        working-directory: helm-charts
+        run: |
+          cp ../chart/tapo-prometheus-exporter-${{ steps.vars.outputs.version }}.tgz .
+          helm repo index --url https://hfoxy.github.io/helm-charts/ .
+          git add .
+          git commit -m "Add tapo-prometheus-exporter-${{ steps.vars.outputs.version }}"
+          git push
+
+      - name: Create pull request in chart repo
+        working-directory: helm-charts
+        run: gh pr create --title "Add tapo-prometheus-exporter-${{ steps.vars.outputs.version }}" --body "Add tapo-prometheus-exporter-${{ steps.vars.outputs.version }}" --base main --head "tapo-prometheus-exporter-${{ steps.vars.outputs.version }}"
