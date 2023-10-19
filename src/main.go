@@ -77,6 +77,8 @@ func main() {
 
 	err = nil
 	for _, plug := range config.Plugs {
+		log.Printf("adding plug %s (%s)", plug.Name, plug.IP)
+
 		if plug.Username == "" {
 			plug.Username = config.Username
 		}
@@ -101,8 +103,13 @@ func main() {
 				err = errors.Join(err, fmt.Errorf("unable to create Tapo plug %s: %v", plug.Name, plugErr))
 			} else {
 				plugs[plug.Name] = tapoPlug
+				log.Printf("added plug %s (%s)", plug.Name, plug.IP)
 			}
 		}
+	}
+
+	if err != nil {
+		panic(err)
 	}
 
 	go func() {
