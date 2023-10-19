@@ -52,6 +52,15 @@ tolerations: []
 
 affinity: {}
 
+config:
+  existingSecret: ""
+  value:
+    username: na
+    password: na
+    plugs:
+      - name: test
+        ip: 127.0.0.1
+
 prometheus:
   serviceMonitor:
     enabled: false

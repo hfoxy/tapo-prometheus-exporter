@@ -57,7 +57,12 @@ func main() {
 	ctx, ctxClose := context.WithCancel(context.Background())
 	defer ctxClose()
 
-	file, err := os.ReadFile("config.yaml")
+	configPath, ok := os.LookupEnv("CONFIG_PATH")
+	if !ok {
+		configPath = "config.yaml"
+	}
+
+	file, err := os.ReadFile(configPath)
 	if err != nil {
 		panic(fmt.Errorf("unable to read config.yaml: %v", err))
 	}
