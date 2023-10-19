@@ -78,6 +78,25 @@ jobs:
         working-directory: chart
         run: helm package .
 
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: src/tapo-prometheus-exporter
+            chart/tapo-prometheus-exporter-${{ steps.vars.outputs.version }}.tgz
+          asset_name: tapo-prometheus-exporter
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload chart to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: chart/tapo-prometheus-exporter-${{ steps.vars.outputs.version }}.tgz
+          asset_name: tapo-prometheus-exporter-chart-${{ steps.vars.outputs.version }}.tgz
+          tag: ${{ github.ref }}
+          overwrite: true
+
       - name: Checkout chart repo
         uses: actions/checkout@v4
         with:
