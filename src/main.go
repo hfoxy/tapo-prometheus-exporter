@@ -28,6 +28,7 @@ var (
 	buildTimestamp = "n/a"
 )
 
+// Plug is the configuration for a plug
 type Plug struct {
 	Name     string `yaml:"name"`
 	IP       string `yaml:"ip"`
@@ -155,7 +156,7 @@ func updatePlugs() {
 	updated := 0
 	for name, plug := range plugs {
 		var plugErr error
-		var plugIp = plug.IP
+		var plugIP = plug.IP
 		var room = plug.Room
 
 		dri, drie := plug.tapo.GetDeviceRunningInfo()
@@ -182,26 +183,26 @@ func updatePlugs() {
 			continue
 		}
 
-		plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.CurrentPower))
-		plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.SignalLevel))
-		plugRssiGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.Rssi))
-		plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.TodayRuntime))
-		plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(eu.Result.MonthRuntime))
-		plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(float64(dri.Result.OnTime))
+		plugCurrentPowerGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(eu.Result.CurrentPower))
+		plugSignalLevelGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(dri.Result.SignalLevel))
+		plugRssiGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(dri.Result.Rssi))
+		plugTodayRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(eu.Result.TodayRuntime))
+		plugMonthRuntimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(eu.Result.MonthRuntime))
+		plugOnTimeGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(float64(dri.Result.OnTime))
 
 		status := float64(0)
 		if dri.Result.DeviceOn {
 			status = 1
 		}
 
-		plugStatusGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(status)
+		plugStatusGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(status)
 
 		overheated := float64(0)
 		if dri.Result.Overheated {
 			overheated = 1
 		}
 
-		plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(overheated)
+		plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIP}).Set(overheated)
 		updated++
 	}
 
