@@ -10,6 +10,6 @@ spec:
     matchLabels:
       {{- include "tapo-prometheus-exporter.selectorLabels" . | nindent 6 }}
   endpoints:
-    - port: metrics
+    - port: http
       path: /metrics
 {{- end }}
