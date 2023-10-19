@@ -125,6 +125,8 @@ func main() {
 		}
 	}()
 
+	updatePlugs()
+
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, err = fmt.Fprintf(w, "OK")
 		if err != nil {
