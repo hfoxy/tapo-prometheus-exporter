@@ -10,7 +10,7 @@ metadata:
 data:
   {{- $files := .Files }}
   {{- range tuple "dashboard.json.tpl" }}
-  {{ . }}: |-
-    {{ $files.Get . }}
+  {{ trimSuffix ".tpl" . }}: |-
+    {{ $files.Get . | indent 4 }}
   {{- end }}
 {{- end }}

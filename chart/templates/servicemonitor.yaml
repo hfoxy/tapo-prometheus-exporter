@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{- include "tapo-prometheus-exporter.fullname" }}-monitor
+  name: {{ include "tapo-prometheus-exporter.fullname" . -}}-monitor
   labels:
     {{- include "tapo-prometheus-exporter.labels" . | nindent 4 }}
 spec:

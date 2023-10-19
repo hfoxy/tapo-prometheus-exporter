@@ -2,5 +2,5 @@ apiVersion: v2
 name: tapo-prometheus-exporter
 description: A Helm chart for deploying the tapo prometheus exporter
 type: application
-version: 0.1.2
-appVersion: "0.1.2"
+version: 0.0.0
+appVersion: ""
