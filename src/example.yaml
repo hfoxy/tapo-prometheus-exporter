@@ -1,0 +1,9 @@
+username: test
+password: test
+plugs:
+  - name: plug1
+    ip: 127.0.1.1
+    username: test
+    password: test
+  - name: plug2
+    ip: 127.0.2.1
