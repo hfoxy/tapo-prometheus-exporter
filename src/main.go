@@ -194,14 +194,14 @@ func updatePlugs() {
 			status = 1
 		}
 
-		plugStatusGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(status)
+		plugStatusGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(status)
 
 		overheated := float64(0)
 		if dri.Result.Overheated {
 			overheated = 1
 		}
 
-		plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "plug_ip": dri.Result.IP}).Set(overheated)
+		plugOverheatedGauge.With(prometheus.Labels{"plug_name": name, "room": room, "plug_ip": plugIp}).Set(overheated)
 		updated++
 	}
 
