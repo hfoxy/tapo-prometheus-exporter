@@ -3,7 +3,7 @@ module github.com/hfoxy/tapo-prometheus-exporter
 go 1.21.1
 
 require (
-	github.com/fsnotify/fsnotify v1.6.0
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/hfoxy/tapo v0.1.2
 	github.com/prometheus/client_golang v1.19.0
 	gopkg.in/yaml.v2 v2.4.0
